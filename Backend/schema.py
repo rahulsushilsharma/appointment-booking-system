@@ -7,6 +7,7 @@ class AppointmentBase(BaseModel):
     email: str
     phone: str | None = None
     reason: str | None = None
+    cancled: int | None = 0  # 0 for active, 1 for canceled
 
 
 class AppointmentCreate(AppointmentBase):

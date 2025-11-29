@@ -14,3 +14,4 @@ class Appointment(Base):
     email = Column(String, nullable=False)
     phone = Column(String, nullable=True)
     reason = Column(String, nullable=True)
+    cancled = Column(Integer, default=0)  # 0 for active, 1 for canceled
