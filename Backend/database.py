@@ -8,7 +8,7 @@ if not db_url:
 
 
 engine = create_engine(
-    "sqlite:///./appointments.db",
+    db_url,
     connect_args={
         "check_same_thread": False  # this is needed only for SQLite databases because they are not thread-safe
     },
