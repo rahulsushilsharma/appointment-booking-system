@@ -13,4 +13,4 @@ class Appointment(Base):
     name = Column(String, nullable=False)
     email = Column(String, nullable=False)
     phone = Column(String, nullable=True)
-    reason = Column(String, nullable=True, length=200)
+    reason = Column(String, nullable=True)

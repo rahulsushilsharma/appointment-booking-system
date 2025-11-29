@@ -1,1 +1,5 @@
 venv
+# ignore __pycache__ folders
+**/__pycache__/
+# db
+*.db
