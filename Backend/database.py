@@ -1,8 +1,17 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import os
+
+db_url = os.getenv("DATABASE_URL", "")
+if not db_url:
+    raise ValueError("DATABASE_URL environment variable is not set.")
+
 
 engine = create_engine(
-    "sqlite:///./appointments.db", connect_args={"check_same_thread": False}
+    "sqlite:///./appointments.db",
+    connect_args={
+        "check_same_thread": False  # this is needed only for SQLite databases because they are not thread-safe
+    },
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
