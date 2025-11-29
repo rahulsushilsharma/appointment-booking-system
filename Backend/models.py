@@ -9,9 +9,11 @@ class Base(DeclarativeBase):
 class Appointment(Base):
     __tablename__ = "appointments"
     id = Column(Integer, primary_key=True, index=True)
-    timestamp = Column(DateTime, index=True, nullable=False)
+    timestamp = Column(DateTime(timezone=True), index=True, nullable=False)
     name = Column(String, nullable=False)
     email = Column(String, nullable=False)
     phone = Column(String, nullable=True)
     reason = Column(String, nullable=True)
-    cancled = Column(Integer, default=0)  # 0 for active, 1 for canceled
+    cancelled = Column(Integer, default=0)  # 0 for active, 1 for canceled
+    start_time = Column(DateTime(timezone=True), nullable=True)
+    end_time = Column(DateTime(timezone=True), nullable=True)
