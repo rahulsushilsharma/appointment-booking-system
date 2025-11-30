@@ -54,7 +54,12 @@ function CancelAppointment({
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
               Are you sure you want to cancel this appointment with{" "}
-              <strong>{slot.name}</strong>
+              <strong>{slot.name}</strong> on{" "}
+              <strong>
+                {new Date(slot.start_time).toLocaleString("en-US", {
+                  timeZone: "UTC",
+                })}
+              </strong>
             </p>
           </div>
           <DialogFooter>

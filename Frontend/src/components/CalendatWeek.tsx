@@ -256,11 +256,15 @@ export function CalendarWeek({
               </p>
               <p>
                 <strong>Start:</strong>{" "}
-                {new Date(viewBooking.start_time).toLocaleString()}
+                {new Date(viewBooking.start_time).toLocaleString("en-US", {
+                  timeZone: "UTC",
+                })}
               </p>
               <p>
                 <strong>End:</strong>{" "}
-                {new Date(viewBooking.end_time).toLocaleString()}
+                {new Date(viewBooking.end_time).toLocaleString("en-US", {
+                  timeZone: "UTC",
+                })}
               </p>
             </div>
           )}
