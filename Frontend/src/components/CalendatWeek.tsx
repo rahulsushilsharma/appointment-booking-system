@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import CancelAppointment from "./CancelAppointment";
+import { EditAppointmentDialog } from "./EditAppointments";
 import ListAppointments from "./ListAppointments";
 import { Button } from "./ui/button";
 
@@ -62,7 +63,7 @@ export function CalendarWeek({
   const [cancelBooking, setCancelBooking] = useState<BookedSlot | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showAppointmentsList, setShowAppointmentsList] = useState(false);
-
+  const [editing, setEditing] = useState<BookedSlot | null>(null);
   const normalize = (dt: string) => (dt.endsWith("Z") ? dt : dt + "Z");
 
   const bookedMap = useMemo(() => {
@@ -180,6 +181,16 @@ export function CalendarWeek({
                                 variant="ghost"
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  setEditing(booked!);
+                                }}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setCancelBooking(booked!);
                                   setShowCancelDialog(true);
                                 }}
@@ -199,6 +210,14 @@ export function CalendarWeek({
         </CardContent>
       </Card>
 
+      {editing && (
+        <EditAppointmentDialog
+          open={!!editing}
+          onOpenChange={() => setEditing(null)}
+          appointment={editing}
+          onSave={getAppointments}
+        />
+      )}
       {showCancelDialog && (
         <CancelAppointment
           slot={cancelBooking!}
