@@ -1,5 +1,6 @@
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Integer, String, DateTime
+from datetime import datetime
 
 
 class Base(DeclarativeBase):
@@ -8,12 +9,13 @@ class Base(DeclarativeBase):
 
 class Appointment(Base):
     __tablename__ = "appointments"
-    id = Column(Integer, primary_key=True, index=True)
-    timestamp = Column(DateTime(timezone=True), index=True, nullable=False)
-    name = Column(String, nullable=False)
-    email = Column(String, nullable=False)
-    phone = Column(String, nullable=True)
-    reason = Column(String, nullable=True)
-    cancelled = Column(Integer, default=0)  # 0 for active, 1 for canceled
-    start_time = Column(DateTime(timezone=True), nullable=True)
-    end_time = Column(DateTime(timezone=True), nullable=True)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str] = mapped_column(String, nullable=False)
+    phone: Mapped[str | None] = mapped_column(String, nullable=True)
+    reason: Mapped[str | None] = mapped_column(String, nullable=True)
+    cancelled: Mapped[bool] = mapped_column(default=False)
+    start_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    end_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
