@@ -1,11 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
@@ -59,7 +53,6 @@ export function CalendarWeek({
   refreshing,
 }: CalendarWeekProps) {
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
-  const [viewBooking, setViewBooking] = useState<BookedSlot | null>(null);
   const [cancelBooking, setCancelBooking] = useState<BookedSlot | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showAppointmentsList, setShowAppointmentsList] = useState(false);
@@ -153,12 +146,11 @@ export function CalendarWeek({
                         key={slot.datetime_slot}
                         onClick={() =>
                           booked
-                            ? setViewBooking(booked)
+                            ? setEditing(booked)
                             : (setSelectedSlot(slot), onSelect?.(slot))
                         }
                         className={cn(
                           "w-full text-sm px-3 py-2 mb-2 rounded-lg border cursor-pointer transition-colors",
-
                           booked
                             ? "bg-muted text-muted-foreground border-muted hover:bg-muted"
                             : selectedSlot?.datetime_slot === slot.datetime_slot
@@ -176,16 +168,7 @@ export function CalendarWeek({
                               >
                                 Booked
                               </Badge>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setEditing(booked!);
-                                }}
-                              >
-                                Edit
-                              </Button>
+
                               <Button
                                 size="sm"
                                 variant="ghost"
@@ -225,12 +208,10 @@ export function CalendarWeek({
           onClose={() => {
             setShowCancelDialog(false);
             setCancelBooking(null);
-            setViewBooking(null);
           }}
           onSuccess={() => {
             setShowCancelDialog(false);
             setCancelBooking(null);
-            setViewBooking(null);
             getAppointments();
           }}
         />
@@ -241,54 +222,6 @@ export function CalendarWeek({
           onClose={() => setShowAppointmentsList(false)}
         />
       )}
-
-      <Dialog open={!!viewBooking} onOpenChange={() => setViewBooking(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Appointment Details</DialogTitle>
-          </DialogHeader>
-          <div className="mb-4">
-            {" "}
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                setCancelBooking(viewBooking!);
-                setShowCancelDialog(true);
-              }}
-            >
-              Cancel Appointment
-            </Button>
-          </div>
-          {viewBooking && (
-            <div className="space-y-3 text-sm">
-              <p>
-                <strong>Name:</strong> {viewBooking.name}
-              </p>
-              <p>
-                <strong>Email:</strong> {viewBooking.email}
-              </p>
-              <p>
-                <strong>Phone:</strong> {viewBooking.phone || "—"}
-              </p>
-              <p>
-                <strong>Reason:</strong> {viewBooking.reason || "—"}
-              </p>
-              <p>
-                <strong>Start:</strong>{" "}
-                {new Date(viewBooking.start_time).toLocaleString("en-US", {
-                  timeZone: "UTC",
-                })}
-              </p>
-              <p>
-                <strong>End:</strong>{" "}
-                {new Date(viewBooking.end_time).toLocaleString("en-US", {
-                  timeZone: "UTC",
-                })}
-              </p>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
