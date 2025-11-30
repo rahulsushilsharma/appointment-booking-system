@@ -87,19 +87,69 @@ export function EditAppointmentDialog({
             placeholder="Reason"
           />
 
-          {/* Show/update times in UTC */}
-          <Input
-            name="start_time"
-            value={form.start_time}
-            onChange={update}
-            type="datetime-local"
-          />
-          <Input
-            name="end_time"
-            value={form.end_time}
-            onChange={update}
-            type="datetime-local"
-          />
+          <div className="grid gap-3">
+            <Input
+              type="date"
+              name="date"
+              value={form.start_time.split("T")[0]}
+              min={new Date().toISOString().split("T")[0]}
+              onChange={(e) => {
+                const newDate = e.target.value;
+                const day = new Date(newDate).getUTCDay();
+
+                if (day === 0 || day === 6) {
+                  alert("Cannot select weekends");
+                  return;
+                }
+
+                const time = form.start_time.split("T")[1];
+                const newISO = `${newDate}T${time}`;
+                setForm({ ...form, start_time: newISO });
+              }}
+            />
+
+            <select
+              className="border rounded-md p-2"
+              value={form.start_time.slice(11, 16)}
+              onChange={(e) => {
+                const date = form.start_time.split("T")[0];
+                const startISO = `${date}T${e.target.value}:00Z`;
+
+                const end = new Date(startISO);
+                end.setUTCMinutes(end.getUTCMinutes() + 30);
+
+                setForm({
+                  ...form,
+                  start_time: startISO,
+                  end_time: end.toISOString(),
+                });
+              }}
+            >
+              <option disabled>Select time</option>
+              {[
+                "09:00",
+                "09:30",
+                "10:00",
+                "10:30",
+                "11:00",
+                "11:30",
+                "12:00",
+                "12:30",
+                "13:00",
+                "13:30",
+                "14:00",
+                "14:30",
+                "15:00",
+                "15:30",
+                "16:00",
+                "16:30",
+              ].map((slot) => (
+                <option key={slot} value={slot}>
+                  {slot}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <Button onClick={submit} className="w-full">
