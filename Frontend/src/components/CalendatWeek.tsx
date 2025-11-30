@@ -9,6 +9,9 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
+import CancelAppointment from "./CancelAppointment";
+import ListAppointments from "./ListAppointments";
+import { Button } from "./ui/button";
 
 export type Slot = {
   date: string;
@@ -43,15 +46,22 @@ interface CalendarWeekProps {
   available_slots: Slot[];
   booked_slots: BookedSlot[];
   onSelect?: (slot: Slot) => void;
+  getAppointments: () => void;
+  refreshing?: boolean;
 }
 
 export function CalendarWeek({
   available_slots,
   booked_slots,
   onSelect,
+  getAppointments,
+  refreshing,
 }: CalendarWeekProps) {
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [viewBooking, setViewBooking] = useState<BookedSlot | null>(null);
+  const [cancelBooking, setCancelBooking] = useState<BookedSlot | null>(null);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showAppointmentsList, setShowAppointmentsList] = useState(false);
 
   const normalize = (dt: string) => (dt.endsWith("Z") ? dt : dt + "Z");
 
@@ -89,12 +99,31 @@ export function CalendarWeek({
       {/* Calendar */}
       <Card className="w-full shadow-sm rounded-xl border bg-background">
         <CardHeader>
-          <h2 className="text-xl font-semibold tracking-tight">
-            Weekly Calendar
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Select a time slot or view booked appointments.
-          </p>
+          <div className="flex items-center justify-between space-y-0">
+            <div className="space-y-1">
+              <h2 className="text-xl font-semibold tracking-tight">
+                Weekly Calendar
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Select a time slot or view booked appointments.
+              </p>
+            </div>
+            <div className="flex items-center">
+              <Badge className="mt-2">Booked: {booked_slots.length}</Badge>
+              <Badge className="mt-2 ml-2">
+                Available: {available_slots.length}
+              </Badge>
+              <Badge className="mt-2 ml-2">
+                {refreshing ? "Refreshing..." : "Up to date"}
+              </Badge>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 py-4">
+            <Button onClick={() => getAppointments()}>Refresh Slots</Button>
+            <Button onClick={() => setShowAppointmentsList(true)}>
+              View All Appointments
+            </Button>
+          </div>
         </CardHeader>
 
         <CardContent>
@@ -139,12 +168,25 @@ export function CalendarWeek({
                         <div className="flex items-center justify-between">
                           <span>{slot.time}</span>
                           {booked && (
-                            <Badge
-                              className="text-xs opacity-70"
-                              variant="secondary"
-                            >
-                              Booked
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                className="text-xs opacity-70"
+                                variant="secondary"
+                              >
+                                Booked
+                              </Badge>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCancelBooking(booked!);
+                                  setShowCancelDialog(true);
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -157,12 +199,47 @@ export function CalendarWeek({
         </CardContent>
       </Card>
 
+      {showCancelDialog && (
+        <CancelAppointment
+          slot={cancelBooking!}
+          open={showCancelDialog}
+          onClose={() => {
+            setShowCancelDialog(false);
+            setCancelBooking(null);
+            setViewBooking(null);
+          }}
+          onSuccess={() => {
+            setShowCancelDialog(false);
+            setCancelBooking(null);
+            setViewBooking(null);
+            getAppointments();
+          }}
+        />
+      )}
+      {showAppointmentsList && (
+        <ListAppointments
+          open={showAppointmentsList}
+          onClose={() => setShowAppointmentsList(false)}
+        />
+      )}
+
       <Dialog open={!!viewBooking} onOpenChange={() => setViewBooking(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Appointment Details</DialogTitle>
           </DialogHeader>
-
+          <div className="mb-4">
+            {" "}
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCancelBooking(viewBooking!);
+                setShowCancelDialog(true);
+              }}
+            >
+              Cancel Appointment
+            </Button>
+          </div>
           {viewBooking && (
             <div className="space-y-3 text-sm">
               <p>

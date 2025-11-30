@@ -23,8 +23,11 @@ function App() {
     booked_slots: BookedSlot[];
   }>({ available_slots: [], booked_slots: [] });
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [fetchingSlots, setFetchingSlots] = useState(false);
+
   async function fetchAvailableSlots() {
     try {
+      setFetchingSlots(true);
       const response = await fetch(
         "http://localhost:8000/api/appointments/available"
       );
@@ -33,8 +36,10 @@ function App() {
       }
       const data = await response.json();
       setAvailableSlots(data);
+      setFetchingSlots(false);
       return data;
     } catch (error) {
+      setFetchingSlots(false);
       console.error("Error fetching available slots:", error);
       return [];
     }
@@ -53,11 +58,13 @@ function App() {
         available_slots={availableSlots.available_slots}
         booked_slots={availableSlots.booked_slots}
         onSelect={(slot) => setSelectedSlot(slot.datetime_slot)}
+        getAppointments={fetchAvailableSlots}
+        refreshing={fetchingSlots}
       />
       <BookingForm />
       <CreateAppointmentForm
         selectedSlot={selectedSlot}
-        onSuccess={() => console.log("Refresh UI")}
+        onSuccess={() => fetchAvailableSlots()}
       />
       <AppointmentsList />
     </>
