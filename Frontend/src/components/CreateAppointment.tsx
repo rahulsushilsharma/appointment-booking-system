@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -89,7 +89,7 @@ export function CreateAppointmentForm({
   };
 
   return (
-    <Card className="w-full rounded-2xl shadow-xl">
+    <>
       <CardHeader>
         <h2 className="text-xl font-semibold">Create Appointment</h2>
         <p className="text-sm text-muted-foreground">
@@ -99,7 +99,6 @@ export function CreateAppointmentForm({
 
       <CardContent>
         <div className="space-y-6">
-          {/* Slot Preview */}
           <div className="p-4 bg-gray-50 rounded-lg border">
             {selectedSlot ? (
               <p className="text-sm font-medium">
@@ -123,7 +122,7 @@ export function CreateAppointmentForm({
               id="name"
               name="name"
               required
-              placeholder="Rahul Sharma"
+              placeholder="Your full name"
               value={form.name}
               onChange={handleChange}
             />
@@ -135,7 +134,7 @@ export function CreateAppointmentForm({
               id="email"
               name="email"
               required
-              placeholder="rahul.sharma@example.com"
+              placeholder="email@example.com"
               value={form.email}
               onChange={handleChange}
             />
@@ -179,7 +178,12 @@ export function CreateAppointmentForm({
           </div>
 
           <Button
-            disabled={loading || !selectedSlot}
+            disabled={
+              loading ||
+              !selectedSlot ||
+              form.name.trim() === "" ||
+              form.email.trim() === ""
+            }
             onClick={handleSubmit}
             className="w-full"
           >
@@ -187,6 +191,6 @@ export function CreateAppointmentForm({
           </Button>
         </div>
       </CardContent>
-    </Card>
+    </>
   );
 }

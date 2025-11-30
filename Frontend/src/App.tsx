@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent } from "./components/ui/dialog";
 
 function App() {
   const [availableSlots, setAvailableSlots] = useState<{
@@ -183,10 +184,15 @@ function App() {
         getAppointments={fetchAvailableSlots}
         refreshing={fetchingSlots}
       />
-      <CreateAppointmentForm
-        selectedSlot={selectedSlot}
-        onSuccess={() => fetchAvailableSlots()}
-      />
+
+      <Dialog open={!!selectedSlot} onOpenChange={() => setSelectedSlot(null)}>
+        <DialogContent>
+          <CreateAppointmentForm
+            selectedSlot={selectedSlot}
+            onSuccess={() => fetchAvailableSlots()}
+          />
+        </DialogContent>
+      </Dialog>
       <AppointmentsList />
       <BookingForm />
     </div>
