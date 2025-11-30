@@ -42,3 +42,9 @@ class AvailableSlot(BaseModel):
 class AvailableSlotsResponse(BaseModel):
     available_slots: list[AvailableSlot]
     booked_slots: list[AppointmentRead]
+
+
+class RegisterBody(BaseModel):
+    name: str
+    email: str
+    password: str

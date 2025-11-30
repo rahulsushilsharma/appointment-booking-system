@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, time, timezone
 from utils import is_valid_slot, get_aviailable_slots
 from fastapi.middleware.cors import CORSMiddleware
+from auth import router as auth_router
 
 # loading the environment variables from .env file
 load_dotenv()
@@ -36,6 +37,8 @@ Base.metadata.create_all(bind=engine)
 
 # Prevent double-booking, validate business hours
 # only, no past bookings, proper HTTP status codes.
+
+app.include_router(auth_router)
 
 
 @app.get("/")
