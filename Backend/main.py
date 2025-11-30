@@ -6,11 +6,24 @@ from schema import AppointmentCreate, AppointmentRead, AvailableSlot
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, time, timezone
 from utils import is_valid_slot, get_aviailable_slots
+from fastapi.middleware.cors import CORSMiddleware
 
 # loading the environment variables from .env file
 load_dotenv()
 
+allowed_origins = [
+    "http://localhost:5173",
+    "https://appointment-booking-system-nu.vercel.app/",
+]
+
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Create tables
 Base.metadata.create_all(bind=engine)
