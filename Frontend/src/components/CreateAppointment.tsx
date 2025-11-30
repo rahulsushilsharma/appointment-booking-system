@@ -13,6 +13,7 @@ type AppointmentPayload = {
   reason?: string;
   start_time: string;
   end_time: string;
+  repeat: number;
 };
 
 interface CreateAppointmentFormProps {
@@ -32,7 +33,7 @@ export function CreateAppointmentForm({
   });
 
   const [loading, setLoading] = useState(false);
-
+  const [repeat, setRepeat] = useState(0);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -52,6 +53,7 @@ export function CreateAppointmentForm({
       ...form,
       start_time: start.toISOString(),
       end_time: end.toISOString(),
+      repeat: repeat,
     };
 
     try {
@@ -159,6 +161,21 @@ export function CreateAppointmentForm({
               value={form.reason}
               onChange={handleChange}
             />
+          </div>
+          <div className="space-y-2">
+            <Label>Repeat Weekly</Label>
+
+            <select
+              className="border rounded-md p-2"
+              value={repeat}
+              onChange={(e) => setRepeat(Number(e.target.value))}
+            >
+              <option value={0}>Do not repeat</option>
+              <option value={1}>Repeat for 1 more week</option>
+              <option value={2}>Repeat for 2 more weeks</option>
+              <option value={3}>Repeat for 3 more weeks</option>
+              <option value={4}>Repeat for 4 more weeks</option>
+            </select>
           </div>
 
           <Button
