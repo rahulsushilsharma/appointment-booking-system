@@ -1,12 +1,14 @@
 # Access the app online
 
 You can access the deployed version of the Local Appointment Booking System at the following URL:
-[https://appointment-booking-system-nu.vercel.app/](https://appointment-booking-system-nu.vercel.app/)
+
+- [https://appointment-booking-system-nu.vercel.app/](https://appointment-booking-system-nu.vercel.app/)
 
 # Backend API
 
 you can access the backend API documentation and test the endpoints using the following URL:
-[https://appointment-booking-system-kjuw.onrender.com/docs](https://appointment-booking-system-kjuw.onrender.com/docs)
+
+- [https://appointment-booking-system-kjuw.onrender.com/docs](https://appointment-booking-system-kjuw.onrender.com/docs)
 
 # Local Appointment Booking System setup Guide
 
@@ -42,6 +44,8 @@ uvicorn main:app --reload --port 8000 --env-file .env
 ### Environment Variables
 
 - `DATABASE_URL`: The database connection string for SQLite. Defaults to an in-memory database.
+
+The backend server will be accessible at `http://localhost:8000` by default.
 
 ## Frontend Application Documentation
 
