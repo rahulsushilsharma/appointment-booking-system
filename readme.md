@@ -1,3 +1,15 @@
+# Access the app online
+
+You can access the deployed version of the Local Appointment Booking System at the following URL:
+[https://appointment-booking-system-nu.vercel.app/](https://appointment-booking-system-nu.vercel.app/)
+
+# Backend API
+
+you can access the backend API documentation and test the endpoints using the following URL:
+[https://appointment-booking-system-kjuw.onrender.com/docs](https://appointment-booking-system-kjuw.onrender.com/docs)
+
+# Local Appointment Booking System setup Guide
+
 ## Backend API Documentation
 
 setup and run the FastAPI backend server locally.
@@ -30,3 +42,34 @@ uvicorn main:app --reload --port 8000 --env-file .env
 ### Environment Variables
 
 - `DATABASE_URL`: The database connection string for SQLite. Defaults to an in-memory database.
+
+## Frontend Application Documentation
+
+This section provides instructions to set up and run the React frontend application for the appointment booking system.
+
+### Prerequisites
+
+- Node.js (version 20 or later)
+- npm (version 9 or later) or yarn (version 1 or later) or pnpm
+
+### Installation
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+### Usage
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm run dev
+```
+
+The application will be accessible at `http://localhost:5173` by default.
