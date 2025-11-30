@@ -18,7 +18,10 @@ import { API_URL } from "./lib/conts";
 // Appointments List: Display all bookings with date, time, name,
 // reason. Include cancel functionality. Sort chronologically.
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 function App() {
   const [availableSlots, setAvailableSlots] = useState<{
@@ -28,15 +31,35 @@ function App() {
 
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [fetchingSlots, setFetchingSlots] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<BookedSlot[]>([]);
+  const [searching, setSearching] = useState(false);
 
-  // ⭐ NEW — weekStart stored as UTC midnight
+  useEffect(() => {
+    const timeout = setTimeout(async () => {
+      if (!searchQuery) {
+        setSearchResults([]);
+        return;
+      }
+
+      setSearching(true);
+      const response = await fetch(
+        `${API_URL}/appointments/search?q=${encodeURIComponent(searchQuery)}`
+      );
+      const data = await response.json();
+      setSearchResults(data);
+      setSearching(false);
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
   const [weekStart, setWeekStart] = useState(() => {
     const d = new Date();
     d.setUTCHours(0, 0, 0, 0);
     return d;
   });
 
-  // ⭐ Format date for the header (Mon–Fri)
   const format = (d: Date) =>
     d.toLocaleDateString("en-US", {
       month: "short",
@@ -49,7 +72,6 @@ function App() {
 
   const weekLabel = `${format(weekStart)} - ${format(endOfWeek)}`;
 
-  // ⭐ NEW — Navigation handlers
   const nextWeek = () => {
     const next = new Date(weekStart);
     next.setUTCDate(next.getUTCDate() + 7);
@@ -62,7 +84,6 @@ function App() {
     setWeekStart(prev);
   };
 
-  // ⭐ UPDATED — Fetch Available Slots for selected week
   async function fetchAvailableSlots(startOverride?: Date) {
     try {
       setFetchingSlots(true);
@@ -88,19 +109,61 @@ function App() {
     }
   }
 
-  // ⭐ Fetch when app loads
   useEffect(() => {
     fetchAvailableSlots();
   }, []);
 
-  // ⭐ Re-fetch when the week changes
   useEffect(() => {
     fetchAvailableSlots();
   }, [weekStart]);
 
   return (
     <div className="p-6 space-y-6">
-      {/* ⭐ WEEK NAVIGATION UI */}
+      <div className="w-full mb-4">
+        <Input
+          placeholder="Search appointments (name, email, phone, reason)"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {searchQuery && (
+        <Card className="p-4 mb-4">
+          <h3 className="text-md font-medium mb-3">
+            Search Results {searching && "(searching...)"}:
+          </h3>
+
+          {searchResults.length === 0 && !searching && (
+            <p className="text-sm text-muted-foreground">No matches found.</p>
+          )}
+
+          <div className="space-y-3">
+            {searchResults.map((appt) => (
+              <div
+                key={appt.id}
+                className="border rounded-lg p-3 text-sm bg-card hover:bg-accent cursor-pointer"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{appt.name}</span>
+
+                  <Badge variant="secondary">
+                    {new Date(appt.start_time).toLocaleString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      month: "short",
+                      day: "numeric",
+                      timeZone: "UTC",
+                    })}
+                  </Badge>
+                </div>
+
+                <p className="text-muted-foreground">{appt.email}</p>
+                <p className="text-muted-foreground">{appt.reason}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-medium">{weekLabel}</h2>
 
@@ -113,8 +176,6 @@ function App() {
           </Button>
         </div>
       </div>
-
-      {/* ⭐ CALENDAR */}
       <CalendarWeek
         available_slots={availableSlots.available_slots}
         booked_slots={availableSlots.booked_slots}
@@ -122,14 +183,10 @@ function App() {
         getAppointments={fetchAvailableSlots}
         refreshing={fetchingSlots}
       />
-
-      {/* ⭐ SELECTED SLOT FORM */}
       <CreateAppointmentForm
         selectedSlot={selectedSlot}
         onSuccess={() => fetchAvailableSlots()}
       />
-
-      {/* ⭐ OPTIONAL PREVIEW */}
       <AppointmentsList />
       <BookingForm />
     </div>

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from dotenv import load_dotenv
 from database import engine, get_db
 from models import Base, Appointment
@@ -147,3 +147,42 @@ async def cancel_appointment(id: int, db: Session = Depends(get_db)):
         raise
     except Exception as e:
         raise HTTPException(500, str(e))
+
+
+@app.get("/api/appointments/search", response_model=list[AppointmentRead])
+async def search_appointments(
+    q: str = Query(None),
+    date: str | None = None,
+    db: Session = Depends(get_db),
+):
+    try:
+        query = db.query(Appointment)
+
+        # Filter by search text
+        if q:
+            like = f"%{q}%"
+            query = query.filter(
+                Appointment.name.ilike(like)
+                | Appointment.email.ilike(like)
+                | Appointment.reason.ilike(like)
+                | Appointment.phone.ilike(like)
+            )
+
+        # Filter by date
+        if date:
+            date_start = datetime.fromisoformat(date).replace(
+                hour=0, minute=0, second=0, tzinfo=timezone.utc
+            )
+            date_end = date_start + timedelta(days=1)
+            query = query.filter(
+                Appointment.start_time >= date_start,
+                Appointment.start_time < date_end,
+            )
+
+        query = query.order_by(Appointment.start_time.asc())
+        results = query.all()
+
+        return [AppointmentRead.model_validate(r) for r in results]
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
