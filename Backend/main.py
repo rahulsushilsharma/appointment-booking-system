@@ -193,6 +193,7 @@ async def update_appointment(
     id: int, appt: AppointmentCreate = Body(...), db: Session = Depends(get_db)
 ):
     try:
+
         existing = db.query(Appointment).filter(Appointment.id == id).first()
 
         if not existing:
@@ -204,6 +205,15 @@ async def update_appointment(
         start = appt.start_time
         end = appt.end_time
         now = datetime.now(timezone.utc)
+        duration = (end - start).total_seconds() / 60
+        if duration != 30:
+            raise HTTPException(400, "Appointment duration must be exactly 30 minutes")
+
+        if start.weekday() >= 5:
+            raise HTTPException(400, "Appointments cannot be on weekends")
+
+        if start.minute not in [0, 30]:
+            raise HTTPException(400, "Start time must be in 30-minute increments")
 
         if start < now:
             raise HTTPException(400, "Cannot edit appointment to a past time")
