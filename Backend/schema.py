@@ -10,6 +10,7 @@ class AppointmentBase(BaseModel):
     reason: str | None = None
     start_time: datetime
     end_time: datetime
+    repeat: int | None = None
 
     @field_validator("start_time", "end_time")
     def to_utc(cls, v: datetime):

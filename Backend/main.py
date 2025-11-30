@@ -82,7 +82,7 @@ async def get_available_slots(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/appointments", response_model=AppointmentRead)
+@app.post("/api/appointments", response_model=list[AppointmentRead])
 async def create_appointment(appt: AppointmentCreate, db: Session = Depends(get_db)):
     try:
         start = appt.start_time
@@ -95,31 +95,51 @@ async def create_appointment(appt: AppointmentCreate, db: Session = Depends(get_
         if not is_valid_slot(start, end):
             raise HTTPException(400, "Outside business hours or invalid slot")
 
-        exists = (
-            db.query(Appointment)
-            .filter(Appointment.start_time == start, Appointment.cancelled == False)
-            .first()
-        )
+        repeat = appt.repeat or 0
 
-        if exists:
-            raise HTTPException(409, "This slot is already booked")
+        created_appointments = []
 
-        new_appointment = Appointment(
-            timestamp=datetime.now(timezone.utc),
-            name=appt.name,
-            email=appt.email,
-            phone=appt.phone,
-            reason=appt.reason,
-            start_time=appt.start_time.astimezone(timezone.utc),
-            end_time=appt.end_time.astimezone(timezone.utc),
-            cancelled=False,
-        )
+        for i in range(repeat + 1):
+            occ_start = start + timedelta(weeks=i)
+            occ_end = end + timedelta(weeks=i)
 
-        db.add(new_appointment)
+            if occ_start.weekday() >= 5:
+                raise HTTPException(400, f"Occurrence {i} falls on weekend")
+
+            conflict = (
+                db.query(Appointment)
+                .filter(
+                    Appointment.start_time == occ_start,
+                    Appointment.cancelled == False,
+                )
+                .first()
+            )
+
+            if conflict:
+                raise HTTPException(
+                    409,
+                    f"Slot already booked for occurrence #{i + 1} at {occ_start.isoformat()}",
+                )
+
+            new_appointment = Appointment(
+                timestamp=datetime.now(timezone.utc),
+                name=appt.name,
+                email=appt.email,
+                phone=appt.phone,
+                reason=appt.reason,
+                start_time=occ_start,
+                end_time=occ_end,
+                cancelled=False,
+            )
+
+            db.add(new_appointment)
+            created_appointments.append(new_appointment)
+
         db.commit()
-        db.refresh(new_appointment)
+        for ap in created_appointments:
+            db.refresh(ap)
 
-        return new_appointment
+        return [AppointmentRead.model_validate(a) for a in created_appointments]
 
     except HTTPException:
         raise
