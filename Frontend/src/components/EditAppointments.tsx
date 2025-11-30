@@ -102,9 +102,17 @@ export function EditAppointmentDialog({
                   return;
                 }
 
-                const time = form.start_time.split("T")[1];
-                const newISO = `${newDate}T${time}`;
-                setForm({ ...form, start_time: newISO });
+                const timePart = form.start_time.slice(11, 16); // HH:MM
+                const newStart = `${newDate}T${timePart}:00Z`;
+
+                const end = new Date(newStart);
+                end.setUTCMinutes(end.getUTCMinutes() + 30);
+
+                setForm({
+                  ...form,
+                  start_time: newStart,
+                  end_time: end.toISOString(),
+                });
               }}
             />
 
@@ -113,14 +121,14 @@ export function EditAppointmentDialog({
               value={form.start_time.slice(11, 16)}
               onChange={(e) => {
                 const date = form.start_time.split("T")[0];
-                const startISO = `${date}T${e.target.value}:00Z`;
+                const newStart = `${date}T${e.target.value}:00Z`;
 
-                const end = new Date(startISO);
+                const end = new Date(newStart);
                 end.setUTCMinutes(end.getUTCMinutes() + 30);
 
                 setForm({
                   ...form,
-                  start_time: startISO,
+                  start_time: newStart,
                   end_time: end.toISOString(),
                 });
               }}
