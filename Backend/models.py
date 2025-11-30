@@ -19,3 +19,13 @@ class Appointment(Base):
     cancelled: Mapped[bool] = mapped_column(default=False)
     start_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     end_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+
+    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    full_name: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
