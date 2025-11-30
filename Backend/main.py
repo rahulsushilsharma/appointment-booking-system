@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi import Body, FastAPI, Depends, HTTPException, Query
 from dotenv import load_dotenv
 from database import engine, get_db
 from models import Base, Appointment
@@ -186,3 +186,57 @@ async def search_appointments(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.patch("/api/appointments/{id}", response_model=AppointmentRead)
+async def update_appointment(
+    id: int, appt: AppointmentCreate = Body(...), db: Session = Depends(get_db)
+):
+    try:
+        existing = db.query(Appointment).filter(Appointment.id == id).first()
+
+        if not existing:
+            raise HTTPException(404, "Appointment not found")
+
+        if existing.cancelled:
+            raise HTTPException(400, "Cannot edit a cancelled appointment")
+
+        start = appt.start_time
+        end = appt.end_time
+        now = datetime.now(timezone.utc)
+
+        if start < now:
+            raise HTTPException(400, "Cannot edit appointment to a past time")
+
+        if not is_valid_slot(start, end):
+            raise HTTPException(400, "Outside business hours or invalid slot")
+
+        conflict = (
+            db.query(Appointment)
+            .filter(
+                Appointment.start_time == start,
+                Appointment.id != id,
+                Appointment.cancelled == False,
+            )
+            .first()
+        )
+
+        if conflict:
+            raise HTTPException(409, "Another appointment already booked at that time")
+
+        existing.name = appt.name
+        existing.email = appt.email
+        existing.phone = appt.phone
+        existing.reason = appt.reason
+        existing.start_time = start
+        existing.end_time = end
+
+        db.commit()
+        db.refresh(existing)
+
+        return AppointmentRead.model_validate(existing)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, str(e))
