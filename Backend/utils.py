@@ -51,9 +51,18 @@ def get_aviailable_slots(booked: list[Appointment]) -> list[AvailableSlot]:
                         date=str(day),
                         time=slot_time.strftime("%H:%M"),
                         datetime_slot=slot_time,
+                        booked=False,
                     )
                 )
-
+            else:
+                available_slots.append(
+                    AvailableSlot(
+                        date=str(day),
+                        time=slot_time.strftime("%H:%M"),
+                        datetime_slot=slot_time,
+                        booked=True,
+                    )
+                )
             slot_time += timedelta(minutes=30)
 
     return available_slots

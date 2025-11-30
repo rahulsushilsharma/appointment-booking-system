@@ -35,6 +35,7 @@ class AvailableSlot(BaseModel):
     date: str
     time: str
     datetime_slot: datetime
+    booked: bool = False
 
 
 class AvailableSlotsResponse(BaseModel):
