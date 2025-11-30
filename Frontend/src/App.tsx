@@ -18,24 +18,68 @@ import { API_URL } from "./lib/conts";
 // Appointments List: Display all bookings with date, time, name,
 // reason. Include cancel functionality. Sort chronologically.
 
+import { Button } from "@/components/ui/button";
+
 function App() {
   const [availableSlots, setAvailableSlots] = useState<{
     available_slots: Slot[];
     booked_slots: BookedSlot[];
   }>({ available_slots: [], booked_slots: [] });
+
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [fetchingSlots, setFetchingSlots] = useState(false);
 
-  async function fetchAvailableSlots() {
+  // ⭐ NEW — weekStart stored as UTC midnight
+  const [weekStart, setWeekStart] = useState(() => {
+    const d = new Date();
+    d.setUTCHours(0, 0, 0, 0);
+    return d;
+  });
+
+  // ⭐ Format date for the header (Mon–Fri)
+  const format = (d: Date) =>
+    d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+
+  const endOfWeek = new Date(weekStart);
+  endOfWeek.setUTCDate(endOfWeek.getUTCDate() + 4);
+
+  const weekLabel = `${format(weekStart)} - ${format(endOfWeek)}`;
+
+  // ⭐ NEW — Navigation handlers
+  const nextWeek = () => {
+    const next = new Date(weekStart);
+    next.setUTCDate(next.getUTCDate() + 7);
+    setWeekStart(next);
+  };
+
+  const previousWeek = () => {
+    const prev = new Date(weekStart);
+    prev.setUTCDate(prev.getUTCDate() - 7);
+    setWeekStart(prev);
+  };
+
+  // ⭐ UPDATED — Fetch Available Slots for selected week
+  async function fetchAvailableSlots(startOverride?: Date) {
     try {
       setFetchingSlots(true);
-      const response = await fetch(API_URL + "/appointments/available");
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
+
+      const start = startOverride || weekStart;
+      const isoDate = start.toISOString().split("T")[0];
+
+      const response = await fetch(
+        `${API_URL}/appointments/available?start_date=${isoDate}`
+      );
+
+      if (!response.ok) throw new Error("Network response was not ok");
+
       const data = await response.json();
       setAvailableSlots(data);
       setFetchingSlots(false);
+
       return data;
     } catch (error) {
       setFetchingSlots(false);
@@ -44,15 +88,33 @@ function App() {
     }
   }
 
+  // ⭐ Fetch when app loads
   useEffect(() => {
     fetchAvailableSlots();
   }, []);
 
+  // ⭐ Re-fetch when the week changes
   useEffect(() => {
-    console.log("Available Slots:", availableSlots);
-  }, [availableSlots]);
+    fetchAvailableSlots();
+  }, [weekStart]);
+
   return (
-    <>
+    <div className="p-6 space-y-6">
+      {/* ⭐ WEEK NAVIGATION UI */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-medium">{weekLabel}</h2>
+
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={previousWeek}>
+            Previous
+          </Button>
+          <Button variant="outline" onClick={nextWeek}>
+            Next
+          </Button>
+        </div>
+      </div>
+
+      {/* ⭐ CALENDAR */}
       <CalendarWeek
         available_slots={availableSlots.available_slots}
         booked_slots={availableSlots.booked_slots}
@@ -60,13 +122,17 @@ function App() {
         getAppointments={fetchAvailableSlots}
         refreshing={fetchingSlots}
       />
-      <BookingForm />
+
+      {/* ⭐ SELECTED SLOT FORM */}
       <CreateAppointmentForm
         selectedSlot={selectedSlot}
         onSuccess={() => fetchAvailableSlots()}
       />
+
+      {/* ⭐ OPTIONAL PREVIEW */}
       <AppointmentsList />
-    </>
+      <BookingForm />
+    </div>
   );
 }
 

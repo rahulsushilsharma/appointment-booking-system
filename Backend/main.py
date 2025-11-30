@@ -53,18 +53,27 @@ async def get_appointments(db: Session = Depends(get_db)):
 
 
 @app.get("/api/appointments/available", response_model=AvailableSlotsResponse)
-async def get_available_slots(db: Session = Depends(get_db)):
+async def get_available_slots(
+    start_date: str | None = None, db: Session = Depends(get_db)
+):
     try:
-        now = datetime.now(timezone.utc)
+        if start_date:
+            # Parse with UTC midnight
+            week_start = datetime.fromisoformat(start_date).replace(tzinfo=timezone.utc)
+        else:
+            week_start = datetime.now(timezone.utc)
 
         booked = (
             db.query(Appointment)
-            .filter(Appointment.start_time >= now, Appointment.cancelled == False)
+            .filter(
+                Appointment.start_time >= week_start, Appointment.cancelled == False
+            )
             .all()
         )
 
-        available_slots = get_aviailable_slots(booked)
+        available_slots = get_aviailable_slots(booked, week_start)
         pydandic_booked = [AppointmentRead.model_validate(a) for a in booked]
+
         return AvailableSlotsResponse(
             available_slots=available_slots, booked_slots=pydandic_booked
         )
