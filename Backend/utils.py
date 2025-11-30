@@ -18,13 +18,26 @@ def is_valid_slot(start: datetime, end: datetime) -> bool:
 
 
 def get_aviailable_slots(booked: list[Appointment]) -> list[AvailableSlot]:
-    booked_slots = {a.start_time for a in booked}
+    booked_slots = set()
+
+    for b in booked:
+        st = b.start_time
+
+        # Normalize booked start_time to UTC-aware
+        if st.tzinfo is None:
+            st = st.replace(tzinfo=timezone.utc)
+        else:
+            st = st.astimezone(timezone.utc)
+
+        booked_slots.add(st)
+
     now = datetime.now(timezone.utc)
     available_slots: list[AvailableSlot] = []
+
     for i in range(7):
         day = now.date() + timedelta(days=i)
 
-        if day.weekday() >= 5:  # skip weekends
+        if day.weekday() >= 5:
             continue
 
         slot_time = datetime.combine(day, time(9, 0), tzinfo=timezone.utc)

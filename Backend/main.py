@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from dotenv import load_dotenv
 from database import engine, get_db
 from models import Base, Appointment
-from schema import AppointmentCreate, AppointmentRead, AvailableSlot
+from schema import AppointmentCreate, AppointmentRead, AvailableSlotsResponse
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, time, timezone
 from utils import is_valid_slot, get_aviailable_slots
@@ -52,7 +52,7 @@ async def get_appointments(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/appointments/available", response_model=list[AvailableSlot])
+@app.get("/api/appointments/available", response_model=AvailableSlotsResponse)
 async def get_available_slots(db: Session = Depends(get_db)):
     try:
         now = datetime.now(timezone.utc)
@@ -64,8 +64,10 @@ async def get_available_slots(db: Session = Depends(get_db)):
         )
 
         available_slots = get_aviailable_slots(booked)
-
-        return available_slots
+        pydandic_booked = [AppointmentRead.model_validate(a) for a in booked]
+        return AvailableSlotsResponse(
+            available_slots=available_slots, booked_slots=pydandic_booked
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -99,8 +101,8 @@ async def create_appointment(appt: AppointmentCreate, db: Session = Depends(get_
             email=appt.email,
             phone=appt.phone,
             reason=appt.reason,
-            start_time=start,
-            end_time=end,
+            start_time=appt.start_time.astimezone(timezone.utc),
+            end_time=appt.end_time.astimezone(timezone.utc),
             cancelled=False,
         )
 
