@@ -46,5 +46,10 @@ class AvailableSlotsResponse(BaseModel):
 
 class RegisterBody(BaseModel):
     name: str
-    email: str
+    email: EmailStr
+    password: str
+
+
+class LoginBody(BaseModel):
+    email: EmailStr
     password: str

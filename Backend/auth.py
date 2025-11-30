@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from database import get_db
 from models import User
-from schema import RegisterBody
+from schema import RegisterBody, LoginBody
 
 router = APIRouter(prefix="/api/auth")
 
@@ -57,7 +57,14 @@ def register(body: RegisterBody, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(email: str, password: str, db: Session = Depends(get_db)):
+def login(body: LoginBody, db: Session = Depends(get_db)):
+    email = body.email
+    password = body.password
+    if not password:
+        raise HTTPException(400, "Password is required")
+
+    if not email:
+        raise HTTPException(400, "Email is required")
     user = db.query(User).filter(User.email == email).first()
 
     if not user or not pwd.verify(password, user.password_hash):
