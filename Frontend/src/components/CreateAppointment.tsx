@@ -67,7 +67,8 @@ export function CreateAppointmentForm({
 
       if (!res.ok) {
         const e = await res.json();
-        alert(e.detail || "Error creating appointment");
+        const message = e.detail?.[0]?.msg || "Something went wrong";
+        alert(message);
         return;
       }
 
@@ -137,6 +138,7 @@ export function CreateAppointmentForm({
               placeholder="email@example.com"
               value={form.email}
               onChange={handleChange}
+              type="email"
             />
           </div>
 
@@ -182,7 +184,12 @@ export function CreateAppointmentForm({
               loading ||
               !selectedSlot ||
               form.name.trim() === "" ||
-              form.email.trim() === ""
+              form.email.trim() === "" ||
+              !form.email.includes("@") ||
+              repeat < 0 ||
+              repeat > 4 ||
+              !Number.isInteger(repeat) ||
+              !form.email.trim().includes(".")
             }
             onClick={handleSubmit}
             className="w-full"
