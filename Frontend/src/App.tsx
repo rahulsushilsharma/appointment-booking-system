@@ -7,6 +7,7 @@ import {
   type Slot,
 } from "./components/CalendatWeek";
 import { CreateAppointmentForm } from "./components/CreateAppointment";
+import { API_URL } from "./lib/conts";
 // 1. User Interface (Frontend)
 // Calendar View: Display current week with available time slots for
 // each day. 30-minute increments, 9:00 AM - 5:00 PM (Mon-Fri).
@@ -28,9 +29,7 @@ function App() {
   async function fetchAvailableSlots() {
     try {
       setFetchingSlots(true);
-      const response = await fetch(
-        "http://localhost:8000/api/appointments/available"
-      );
+      const response = await fetch(API_URL + "/appointments/available");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

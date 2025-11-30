@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { API_URL } from "@/lib/conts";
 import { useState } from "react";
 
 type AppointmentPayload = {
@@ -56,7 +57,7 @@ export function CreateAppointmentForm({
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:8000/api/appointments", {
+      const res = await fetch(API_URL + "/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

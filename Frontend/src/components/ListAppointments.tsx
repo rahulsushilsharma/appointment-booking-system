@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { API_URL } from "@/lib/conts";
 import { useEffect, useState } from "react";
 import type { BookedSlot } from "./CalendatWeek";
 import CancelAppointment from "./CancelAppointment";
@@ -27,7 +28,7 @@ function ListAppointments({ open, onClose }: ListAppointmentsProps) {
   async function fetchAppointments() {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:8000/api/appointments");
+      const response = await fetch(API_URL + "/appointments");
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

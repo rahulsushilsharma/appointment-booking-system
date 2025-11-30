@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { API_URL } from "@/lib/conts";
 import type { BookedSlot } from "./CalendatWeek";
 import { Button } from "./ui/button";
 
@@ -23,12 +24,9 @@ function CancelAppointment({
 }: CancelAppointmentProps) {
   async function cancelAppointment() {
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/appointments/${slot.id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(API_URL + `/appointments/${slot.id}`, {
+        method: "DELETE",
+      });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
