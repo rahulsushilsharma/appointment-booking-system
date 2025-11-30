@@ -13,7 +13,7 @@ load_dotenv()
 
 allowed_origins = [
     "http://localhost:5173",
-    "https://appointment-booking-system-nu.vercel.app/",
+    "https://appointment-booking-system-nu.vercel.app",
 ]
 
 app = FastAPI()
