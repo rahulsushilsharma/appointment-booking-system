@@ -110,7 +110,11 @@ function App() {
   endOfWeek.setUTCDate(endOfWeek.getUTCDate() + 4);
 
   const weekLabel = `${format(weekStart)} - ${format(endOfWeek)}`;
-
+  const today = new Date();
+  const currentMonday = new Date(today);
+  currentMonday.setUTCDate(today.getUTCDate() - today.getUTCDay() + 1); // Monday
+  currentMonday.setUTCHours(0, 0, 0, 0);
+  const isAtCurrentWeek = weekStart.getTime() <= currentMonday.getTime();
   const nextWeek = () => {
     const next = new Date(weekStart);
     next.setUTCDate(next.getUTCDate() + 7);
@@ -247,11 +251,15 @@ function App() {
         <h2 className="text-lg font-medium">{weekLabel}</h2>
 
         <div className="flex gap-2">
-          <Button variant="outline" onClick={previousWeek}>
-            Previous
+          <Button
+            variant="outline"
+            onClick={previousWeek}
+            disabled={isAtCurrentWeek}
+          >
+            &lt;- Previous Week
           </Button>
           <Button variant="outline" onClick={nextWeek}>
-            Next
+            Next Week -&gt;
           </Button>
         </div>
       </div>

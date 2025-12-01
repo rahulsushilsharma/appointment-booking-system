@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 import { useMemo, useState } from "react";
 import CancelAppointment from "./CancelAppointment";
 import { EditAppointmentDialog } from "./EditAppointments";
@@ -89,7 +90,13 @@ export function CalendarWeek({
       day: "numeric",
       month: "short",
     });
+  function add30Minutes(timeStr: string) {
+    const [h, m] = timeStr.split(":").map(Number);
+    const date = new Date(Date.UTC(2025, 0, 1, h, m)); // dummy date
+    date.setUTCMinutes(date.getUTCMinutes() + 30);
 
+    return date.toISOString().slice(11, 16); // HH:MM
+  }
   return (
     <>
       {/* Calendar */}
@@ -105,11 +112,13 @@ export function CalendarWeek({
               </p>
             </div>
             <div className="flex items-center">
-              <Badge className="mt-2">Booked: {booked_slots.length}</Badge>
+              <Badge className="mt-2 bg-green-600">
+                Booked: {booked_slots.length}
+              </Badge>
               <Badge className="mt-2 ml-2">
                 Available: {available_slots.length}
               </Badge>
-              <Badge className="mt-2 ml-2">
+              <Badge className="mt-2 ml-2 bg-blue-600">
                 {refreshing ? "Refreshing..." : "Up to date"}
               </Badge>
             </div>
@@ -161,27 +170,22 @@ export function CalendarWeek({
                         )}
                       >
                         <div className="flex items-center justify-between">
-                          <span>{slot.time}</span>
+                          <span>
+                            {slot.time} - {add30Minutes(slot.time)}
+                          </span>
                           {booked && (
                             <div className="flex items-center gap-2">
                               <Badge
-                                className="text-xs opacity-70"
-                                variant="secondary"
-                              >
-                                Booked
-                              </Badge>
-
-                              <Button
-                                size="sm"
-                                variant="ghost"
+                                variant="default"
+                                className="p-1.5 rounded-full cursor-pointer "
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setCancelBooking(booked!);
                                   setShowCancelDialog(true);
                                 }}
                               >
-                                Cancel
-                              </Button>
+                                <X className="h-3 w-3" />
+                              </Badge>
                             </div>
                           )}
                         </div>

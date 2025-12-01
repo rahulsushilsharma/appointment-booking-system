@@ -109,9 +109,17 @@ export function CreateAppointmentForm({
           <div className="p-4 bg-gray-50 rounded-lg border">
             {selectedSlot ? (
               <p className="text-sm font-medium">
-                Booking for:{" "}
+                Booking for: <br />
                 <span className="text-blue-600">
                   {new Date(selectedSlot).toLocaleString("en-US", {
+                    timeZone: "UTC",
+                  })}
+                </span>
+                {" - "}
+                <span className="text-blue-600">
+                  {new Date(
+                    new Date(selectedSlot).getTime() + 30 * 60000
+                  ).toLocaleString("en-US", {
                     timeZone: "UTC",
                   })}
                 </span>
