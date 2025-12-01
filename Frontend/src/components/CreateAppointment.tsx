@@ -19,11 +19,13 @@ type AppointmentPayload = {
 interface CreateAppointmentFormProps {
   selectedSlot: string | null; // ISO datetime from CalendarWeek
   onSuccess?: () => void;
+  token?: string;
 }
 
 export function CreateAppointmentForm({
   selectedSlot,
   onSuccess,
+  token,
 }: CreateAppointmentFormProps) {
   const [form, setForm] = useState({
     name: "",
@@ -61,7 +63,10 @@ export function CreateAppointmentForm({
 
       const res = await fetch(API_URL + "/appointments", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(payload),
       });
 

@@ -46,7 +46,12 @@ function App() {
 
       setSearching(true);
       const response = await fetch(
-        `${API_URL}/appointments/search?q=${encodeURIComponent(searchQuery)}`
+        `${API_URL}/appointments/search?q=${encodeURIComponent(searchQuery)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       const data = await response.json();
       setSearchResults(data);
@@ -94,7 +99,12 @@ function App() {
       const isoDate = start.toISOString().split("T")[0];
 
       const response = await fetch(
-        `${API_URL}/appointments/available?start_date=${isoDate}`
+        `${API_URL}/appointments/available?start_date=${isoDate}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       if (!response.ok) throw new Error("Network response was not ok");

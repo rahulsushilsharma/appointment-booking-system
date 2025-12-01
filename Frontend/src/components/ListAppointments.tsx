@@ -15,11 +15,12 @@ import { Button } from "./ui/button";
 interface ListAppointmentsProps {
   open: boolean;
   onClose: () => void;
+  token?: string;
 }
 
 // Display all bookings with date, time, name,
 // reason. Include cancel functionality. Sort chronologically
-function ListAppointments({ open, onClose }: ListAppointmentsProps) {
+function ListAppointments({ open, onClose, token }: ListAppointmentsProps) {
   const [appointments, setAppointments] = useState<BookedSlot[]>([]);
   const [loading, setLoading] = useState(false);
   const [cancled, setCancled] = useState(false);
@@ -28,7 +29,11 @@ function ListAppointments({ open, onClose }: ListAppointmentsProps) {
   async function fetchAppointments() {
     try {
       setLoading(true);
-      const response = await fetch(API_URL + "/appointments");
+      const response = await fetch(API_URL + "/appointments", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

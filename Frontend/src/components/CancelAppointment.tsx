@@ -14,6 +14,7 @@ interface CancelAppointmentProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  token?: string;
 }
 
 function CancelAppointment({
@@ -21,11 +22,15 @@ function CancelAppointment({
   open,
   onClose,
   onSuccess,
+  token,
 }: CancelAppointmentProps) {
   async function cancelAppointment() {
     try {
       const response = await fetch(API_URL + `/appointments/${slot.id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");

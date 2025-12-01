@@ -16,11 +16,13 @@ export function EditAppointmentDialog({
   onOpenChange,
   appointment,
   onSave,
+  token,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   appointment: BookedSlot;
   onSave: () => void;
+  token?: string;
 }) {
   const [form, setForm] = useState(appointment);
 
@@ -40,7 +42,10 @@ export function EditAppointmentDialog({
 
     const res = await fetch(API_URL + `/appointments/${form.id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(payload),
     });
 
