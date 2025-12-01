@@ -231,3 +231,8 @@ The frontend will run at:
 
 **No automated tests are included in this version**
 (Manual testing performed using UI and Swagger.)
+
+## deployment
+
+- Frontend deployed on Vercel automatically from main branch.
+- Backend deployed on Render.com automatically from main branch.
