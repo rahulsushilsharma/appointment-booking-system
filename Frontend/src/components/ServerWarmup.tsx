@@ -4,7 +4,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { API_URL } from "@/lib/conts";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -14,7 +13,9 @@ export function ServerWarmupDialog({ onReady }: { onReady: () => void }) {
   useEffect(() => {
     const checkServer = async () => {
       try {
-        const res = await fetch(`${API_URL}/`);
+        const res = await fetch(
+          "https://appointment-booking-system-kjuw.onrender.com"
+        );
         if (res.ok) {
           setOpen(false);
           onReady();
