@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, time, timezone
 from utils import is_valid_slot, get_aviailable_slots
 from fastapi.middleware.cors import CORSMiddleware
-from auth import router as auth_router
+from auth import router as auth_router, get_current_user
+
 
 # loading the environment variables from .env file
 load_dotenv()
@@ -47,7 +48,9 @@ async def read_root():
 
 
 @app.get("/api/appointments", response_model=list[AppointmentRead])
-async def get_appointments(db: Session = Depends(get_db)):
+async def get_appointments(
+    db: Session = Depends(get_db), user=Depends(get_current_user)
+):
     try:
         appointments = db.query(Appointment).all()
         return appointments
@@ -57,7 +60,9 @@ async def get_appointments(db: Session = Depends(get_db)):
 
 @app.get("/api/appointments/available", response_model=AvailableSlotsResponse)
 async def get_available_slots(
-    start_date: str | None = None, db: Session = Depends(get_db)
+    start_date: str | None = None,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
 ):
     try:
         if start_date:
@@ -86,7 +91,11 @@ async def get_available_slots(
 
 
 @app.post("/api/appointments", response_model=list[AppointmentRead])
-async def create_appointment(appt: AppointmentCreate, db: Session = Depends(get_db)):
+async def create_appointment(
+    appt: AppointmentCreate,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
     try:
         start = appt.start_time
         end = appt.end_time
@@ -151,7 +160,9 @@ async def create_appointment(appt: AppointmentCreate, db: Session = Depends(get_
 
 
 @app.delete("/api/appointments/{id}")
-async def cancel_appointment(id: int, db: Session = Depends(get_db)):
+async def cancel_appointment(
+    id: int, db: Session = Depends(get_db), user=Depends(get_current_user)
+):
     try:
         appt = db.query(Appointment).filter(Appointment.id == id).first()
         if not appt:
@@ -177,6 +188,7 @@ async def search_appointments(
     q: str = Query(None),
     date: str | None = None,
     db: Session = Depends(get_db),
+    user=Depends(get_current_user),
 ):
     try:
         query = db.query(Appointment)
@@ -213,7 +225,10 @@ async def search_appointments(
 
 @app.patch("/api/appointments/{id}", response_model=AppointmentRead)
 async def update_appointment(
-    id: int, appt: AppointmentCreate = Body(...), db: Session = Depends(get_db)
+    id: int,
+    appt: AppointmentCreate = Body(...),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
 ):
     try:
 
