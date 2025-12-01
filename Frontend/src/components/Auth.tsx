@@ -28,7 +28,10 @@ export function AuthScreen({
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.detail);
+      const e = await res.json();
+      const message = e.detail?.[0]?.msg || "Something went wrong";
+      alert(message);
+
       return;
     }
 
