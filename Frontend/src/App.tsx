@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { AuthScreen } from "./components/Auth";
+import { ServerWarmupDialog } from "./components/ServerWarmup";
 import { Dialog, DialogContent } from "./components/ui/dialog";
 
 function App() {
@@ -41,7 +42,7 @@ function App() {
     name: string;
     email: string;
   } | null>(null);
-
+  const [serverReady, setServerReady] = useState(false);
   useEffect(() => {
     const storedDetails = localStorage.getItem("user_details");
     if (storedDetails) {
@@ -165,7 +166,9 @@ function App() {
     setToken(null);
     localStorage.removeItem("auth_token");
   }
-
+  if (!serverReady) {
+    return <ServerWarmupDialog onReady={() => setServerReady(true)} />;
+  }
   if (!token) {
     return (
       <AuthScreen

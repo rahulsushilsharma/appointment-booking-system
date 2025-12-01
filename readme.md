@@ -1,6 +1,12 @@
-Here is the **updated README**, rewritten in the **same simple style**, and now includes **all new endpoint documentations**, including search and update.
+# Local Appointment Booking System
 
----
+A simple full-stack appointment booking system with:
+
+- Weekly calendar view
+- 30-minute appointment slots
+- Authentication
+- Booking, editing, searching, and cancelling
+- Deployment for both frontend and backend
 
 # Access the App Online
 
@@ -104,8 +110,7 @@ Common variables:
 
 ```
 DATABASE_URL=sqlite:///./appointments.db
-SECRET_KEY=your_jwt_secret
-ALGORITHM=HS256
+
 ```
 
 ---
@@ -149,4 +154,80 @@ The frontend will run at:
 
 **[http://localhost:5173](http://localhost:5173)**
 
+# Features
+
+## Frontend Features
+
+- **Weekly Calendar View**
+
+  - Displays current week (Mon–Fri)
+  - Shows slots from **9:00 AM – 5:00 PM**
+  - Slots are highlighted as _available_ or _booked_
+  - 30-minute increments
+
+- **Booking Form**
+
+  - Select time slot
+  - Enter: Name, Email, Phone (optional), Reason (optional)
+  - Email validation handled on frontend + backend
+  - Shows success and error alerts
+
+- **Appointments List**
+
+  - Displays all appointments
+  - Chronological order
+  - Cancel button for each appointment
+  - Automatic refresh after changes
+
+- **Searching**
+
+  - Search by name, email, phone, or reason
+  - Filter by date
+
+- **Edit Appointment**
+
+  - Update booked appointment details
+  - Only if not cancelled
+  - Full form UI with validations
+
+- **Authentication**
+
+  - Register & Login
+  - Access token stored in memory & refreshed on page reload
+  - Private routes protected
+
 ---
+
+## Backend Features
+
+- **JWT Authentication**
+- **Create, Read, Search, Edit, Cancel appointments**
+- **Recurring weekly appointments**
+- **Business hour validation**
+- **No double-booking**
+- **No weekend bookings**
+- **No past bookings**
+- **Search API with text + date filters**
+- **30-minute appointment rule**
+- **CORS configured for production frontend**
+
+# Tech Stack
+
+## Backend Stack
+
+- FastAPI + Python
+- SQLite database with SQLAlchemy ORM
+- Pydantic models for validation
+- Uvicorn server
+- Render.com hosting
+
+## Frontend Stack
+
+- React + TypeScript
+- TailwindCSS for styling
+- Vercel for deployment
+
+# Tests
+
+**No automated tests are included in this version**
+(Manual testing performed using UI and Swagger.)
