@@ -5,8 +5,10 @@ import { useState } from "react";
 
 export function AuthScreen({
   setToken,
+  setUserDetails,
 }: {
   setToken: (token: string) => void;
+  setUserDetails: (userDetails: { name: string; email: string }) => void;
 }) {
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ email: "", password: "", name: "" });
@@ -30,8 +32,10 @@ export function AuthScreen({
       return;
     }
 
-    if (isLogin) setToken(data.access_token);
-    else setIsLogin(true);
+    if (isLogin) {
+      setToken(data.access_token);
+      setUserDetails(data.user);
+    } else setIsLogin(true);
   };
 
   return (

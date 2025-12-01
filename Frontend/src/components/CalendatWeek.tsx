@@ -225,6 +225,7 @@ export function CalendarWeek({
           open={showAppointmentsList}
           onClose={() => setShowAppointmentsList(false)}
           token={token}
+          getAppointments={getAppointments}
         />
       )}
     </>

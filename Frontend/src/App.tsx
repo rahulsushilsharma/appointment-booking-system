@@ -37,6 +37,23 @@ function App() {
   const [searchResults, setSearchResults] = useState<BookedSlot[]>([]);
   const [searching, setSearching] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [userDetails, setUserDetails] = useState<{
+    name: string;
+    email: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const storedDetails = localStorage.getItem("user_details");
+    if (storedDetails) {
+      setUserDetails(JSON.parse(storedDetails));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userDetails) {
+      localStorage.setItem("user_details", JSON.stringify(userDetails));
+    }
+  }, [userDetails]);
 
   useEffect(() => {
     if (token) {
@@ -140,11 +157,34 @@ function App() {
     fetchAvailableSlots();
   }, [weekStart, token]);
 
+  function logout() {
+    setToken(null);
+    localStorage.removeItem("auth_token");
+  }
+
   if (!token) {
-    return <AuthScreen setToken={(t) => setToken(t)} />;
+    return (
+      <AuthScreen
+        setToken={(t) => setToken(t)}
+        setUserDetails={setUserDetails}
+      />
+    );
   }
   return (
     <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Appointment Booking System</h1>
+          {userDetails && (
+            <p className="text-sm text-muted-foreground">
+              Logged in as {userDetails.name} ({userDetails.email})
+            </p>
+          )}
+        </div>
+        <Button variant="destructive" onClick={logout}>
+          Logout
+        </Button>
+      </div>
       <div className="w-full mb-4">
         <Input
           placeholder="Search appointments (name, email, phone, reason)"
@@ -167,29 +207,39 @@ function App() {
           )}
 
           <div className="space-y-3">
-            {searchResults.map((appt) => (
-              <div
-                key={appt.id}
-                className="border rounded-lg p-3 text-sm bg-card hover:bg-accent cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{appt.name}</span>
+            {searchResults
+              .sort((a, b) => {
+                return (
+                  Number(a.cancelled) - Number(b.cancelled) ||
+                  a.name.localeCompare(b.name)
+                );
+              })
+              .map((appt) => (
+                <div
+                  key={appt.id}
+                  className="border rounded-lg p-3 text-sm bg-card hover:bg-accent cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{appt.name}</span>
 
-                  <Badge variant="secondary">
-                    {new Date(appt.start_time).toLocaleString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      month: "short",
-                      day: "numeric",
-                      timeZone: "UTC",
-                    })}
-                  </Badge>
+                    <Badge variant="secondary">
+                      {new Date(appt.start_time).toLocaleString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        month: "short",
+                        day: "numeric",
+                        timeZone: "UTC",
+                      })}
+                    </Badge>
+                    <Badge variant={appt.cancelled ? "destructive" : "default"}>
+                      {appt.cancelled ? "Cancelled" : "Active"}
+                    </Badge>
+                  </div>
+
+                  <p className="text-muted-foreground">{appt.email}</p>
+                  <p className="text-muted-foreground">{appt.reason}</p>
                 </div>
-
-                <p className="text-muted-foreground">{appt.email}</p>
-                <p className="text-muted-foreground">{appt.reason}</p>
-              </div>
-            ))}
+              ))}
           </div>
         </Card>
       )}
