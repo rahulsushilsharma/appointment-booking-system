@@ -15,7 +15,7 @@ import { Button } from "./ui/button";
 interface ListAppointmentsProps {
   open: boolean;
   onClose: () => void;
-  token?: string;
+  token: string;
 }
 
 // Display all bookings with date, time, name,
@@ -140,6 +140,7 @@ function ListAppointments({ open, onClose, token }: ListAppointmentsProps) {
             setCancelBooking(null);
             fetchAppointments();
           }}
+          token={token}
         />
       )}
     </div>

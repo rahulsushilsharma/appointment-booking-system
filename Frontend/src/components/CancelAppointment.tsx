@@ -14,7 +14,7 @@ interface CancelAppointmentProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  token?: string;
+  token: string;
 }
 
 function CancelAppointment({

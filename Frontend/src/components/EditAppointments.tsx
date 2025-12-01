@@ -22,7 +22,7 @@ export function EditAppointmentDialog({
   onOpenChange: (open: boolean) => void;
   appointment: BookedSlot;
   onSave: () => void;
-  token?: string;
+  token: string;
 }) {
   const [form, setForm] = useState(appointment);
 

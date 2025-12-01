@@ -122,7 +122,6 @@ function App() {
           },
         }
       );
-
       if (!response.ok) throw new Error("Network response was not ok");
 
       const data = await response.json();
@@ -151,6 +150,9 @@ function App() {
           placeholder="Search appointments (name, email, phone, reason)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          autoComplete="off"
+          className="w-full"
+          name="search input"
         />
       </div>
 
@@ -209,28 +211,23 @@ function App() {
         onSelect={(slot) => setSelectedSlot(slot.datetime_slot)}
         getAppointments={fetchAvailableSlots}
         refreshing={fetchingSlots}
+        token={token}
       />
 
       <Dialog open={!!selectedSlot} onOpenChange={() => setSelectedSlot(null)}>
         <DialogContent>
           <CreateAppointmentForm
             selectedSlot={selectedSlot}
-            onSuccess={() => fetchAvailableSlots()}
+            onSuccess={() => {
+              fetchAvailableSlots();
+              setSelectedSlot(null);
+            }}
+            token={token}
           />
         </DialogContent>
       </Dialog>
-      <AppointmentsList />
-      <BookingForm />
     </div>
   );
-}
-
-function BookingForm() {
-  return <></>;
-}
-
-function AppointmentsList() {
-  return <></>;
 }
 
 export default App;

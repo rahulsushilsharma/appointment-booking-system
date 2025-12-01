@@ -43,6 +43,7 @@ interface CalendarWeekProps {
   onSelect?: (slot: Slot) => void;
   getAppointments: () => void;
   refreshing?: boolean;
+  token: string;
 }
 
 export function CalendarWeek({
@@ -51,6 +52,7 @@ export function CalendarWeek({
   onSelect,
   getAppointments,
   refreshing,
+  token,
 }: CalendarWeekProps) {
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [cancelBooking, setCancelBooking] = useState<BookedSlot | null>(null);
@@ -199,6 +201,7 @@ export function CalendarWeek({
           onOpenChange={() => setEditing(null)}
           appointment={editing}
           onSave={getAppointments}
+          token={token}
         />
       )}
       {showCancelDialog && (
@@ -214,12 +217,14 @@ export function CalendarWeek({
             setCancelBooking(null);
             getAppointments();
           }}
+          token={token}
         />
       )}
       {showAppointmentsList && (
         <ListAppointments
           open={showAppointmentsList}
           onClose={() => setShowAppointmentsList(false)}
+          token={token}
         />
       )}
     </>

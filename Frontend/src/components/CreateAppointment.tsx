@@ -19,7 +19,7 @@ type AppointmentPayload = {
 interface CreateAppointmentFormProps {
   selectedSlot: string | null; // ISO datetime from CalendarWeek
   onSuccess?: () => void;
-  token?: string;
+  token: string;
 }
 
 export function CreateAppointmentForm({
@@ -74,6 +74,7 @@ export function CreateAppointmentForm({
         const e = await res.json();
         const message = e.detail?.[0]?.msg || "Something went wrong";
         alert(message);
+
         return;
       }
 
