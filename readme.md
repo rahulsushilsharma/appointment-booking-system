@@ -1,62 +1,129 @@
-# Access the app online
+Here is the **updated README**, rewritten in the **same simple style**, and now includes **all new endpoint documentations**, including search and update.
 
-You can access the deployed version of the Local Appointment Booking System at the following URL:
+---
 
-- [https://appointment-booking-system-nu.vercel.app/](https://appointment-booking-system-nu.vercel.app/)
+# Access the App Online
+
+You can access the deployed version of the Local Appointment Booking System here:
+
+**Frontend:** [https://appointment-booking-system-nu.vercel.app/](https://appointment-booking-system-nu.vercel.app/)
 
 # Backend API
 
-you can access the backend API documentation and test the endpoints using the following URL:
+You can view the backend API docs and test endpoints here:
 
-- [https://appointment-booking-system-kjuw.onrender.com/docs](https://appointment-booking-system-kjuw.onrender.com/docs)
+**Backend Docs:** [https://appointment-booking-system-kjuw.onrender.com/docs](https://appointment-booking-system-kjuw.onrender.com/docs)
 
-# Local Appointment Booking System setup Guide
+---
+
+# Local Appointment Booking System — Setup Guide
 
 ## Backend API Documentation
 
-setup and run the FastAPI backend server locally.
+This section explains how to set up and run the FastAPI backend server locally.
 
-### Prerequisites
+---
 
-- Python 3.8 or later
+## Prerequisites
+
+- Python 3.8+
 - pip
-- virtualenv (optional but recommended)
+- virtualenv (recommended)
 
-### Installation
+---
+
+## Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Usage
+---
+
+## Running the Server
 
 ```bash
 uvicorn main:app --reload --port 8000 --env-file .env
 ```
 
-### API Endpoints
+The backend will run at:
 
-- `POST /appointments/`: Create a new appointment.
-- `GET /appointments/`: Get all appointments.
-- `GET /appointments/available`: Get available time slots.
-- `DELETE /appointments/{id}`: Cancel an appointment by ID.
+**[http://localhost:8000](http://localhost:8000)**
 
-### Environment Variables
+---
 
-- `DATABASE_URL`: The database connection string for SQLite. Defaults to an in-memory database.
+## API Endpoints
 
-The backend server will be accessible at `http://localhost:8000` by default.
+### **Authentication**
 
-## Frontend Application Documentation
+- `POST /auth/register` — Register a new user
+- `POST /auth/login` — Login and receive access token
+- All appointment endpoints require a valid bearer token
 
-This section provides instructions to set up and run the React frontend application for the appointment booking system.
+---
 
-### Prerequisites
+### **Appointments**
 
-- Node.js (version 20 or later)
-- npm (version 9 or later) or yarn (version 1 or later) or pnpm
+#### **Create Appointment**
 
-### Installation
+- `POST /api/appointments`
+- Creates an appointment (supports weekly recurring appointments)
+
+#### **Get All Appointments**
+
+- `GET /api/appointments`
+- Returns all appointments (requires auth)
+
+#### **Get Available Time Slots**
+
+- `GET /api/appointments/available?start_date=YYYY-MM-DD`
+- Returns available and booked slots starting from a given week
+
+#### **Cancel Appointment**
+
+- `DELETE /api/appointments/{id}`
+- Marks an appointment as cancelled
+
+#### **Search Appointments**
+
+- `GET /api/appointments/search?q=...&date=YYYY-MM-DD`
+- Search by name, email, phone, reason, or by date
+
+#### **Update Appointment**
+
+- `PATCH /api/appointments/{id}`
+- Update an existing appointment (30-minute slot, weekday, must not conflict)
+
+---
+
+## Environment Variables
+
+The backend uses a `.env` file.
+
+Common variables:
+
+```
+DATABASE_URL=sqlite:///./appointments.db
+SECRET_KEY=your_jwt_secret
+ALGORITHM=HS256
+```
+
+---
+
+# Frontend Application Documentation
+
+Instructions to run the React frontend.
+
+---
+
+## Prerequisites
+
+- Node.js 20+
+- npm / yarn / pnpm
+
+---
+
+## Installation
 
 ```bash
 npm install
@@ -66,7 +133,9 @@ yarn install
 pnpm install
 ```
 
-### Usage
+---
+
+## Running the App
 
 ```bash
 npm run dev
@@ -76,4 +145,8 @@ yarn dev
 pnpm run dev
 ```
 
-The application will be accessible at `http://localhost:5173` by default.
+The frontend will run at:
+
+**[http://localhost:5173](http://localhost:5173)**
+
+---
