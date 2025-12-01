@@ -37,7 +37,22 @@ function App() {
   const [searchResults, setSearchResults] = useState<BookedSlot[]>([]);
   const [searching, setSearching] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+
   useEffect(() => {
+    if (token) {
+      localStorage.setItem("auth_token", token || "");
+    }
+  }, [token]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      setToken(token);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
     const timeout = setTimeout(async () => {
       if (!searchQuery) {
         setSearchResults([]);
@@ -59,7 +74,7 @@ function App() {
     }, 400);
 
     return () => clearTimeout(timeout);
-  }, [searchQuery]);
+  }, [searchQuery, token]);
 
   const [weekStart, setWeekStart] = useState(() => {
     const d = new Date();
@@ -92,6 +107,7 @@ function App() {
   };
 
   async function fetchAvailableSlots(startOverride?: Date) {
+    if (!token) return;
     try {
       setFetchingSlots(true);
 
@@ -123,100 +139,89 @@ function App() {
 
   useEffect(() => {
     fetchAvailableSlots();
-  }, []);
+  }, [weekStart, token]);
 
-  useEffect(() => {
-    fetchAvailableSlots();
-  }, [weekStart]);
-
+  if (!token) {
+    return <AuthScreen setToken={(t) => setToken(t)} />;
+  }
   return (
-    <>
-      {!token && <AuthScreen setToken={(t) => setToken(t)} />}
-      {token && (
-        <div className="p-6 space-y-6">
-          <div className="w-full mb-4">
-            <Input
-              placeholder="Search appointments (name, email, phone, reason)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+    <div className="p-6 space-y-6">
+      <div className="w-full mb-4">
+        <Input
+          placeholder="Search appointments (name, email, phone, reason)"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
-          {searchQuery && (
-            <Card className="p-4 mb-4">
-              <h3 className="text-md font-medium mb-3">
-                Search Results {searching && "(searching...)"}:
-              </h3>
+      {searchQuery && (
+        <Card className="p-4 mb-4">
+          <h3 className="text-md font-medium mb-3">
+            Search Results {searching && "(searching...)"}:
+          </h3>
 
-              {searchResults.length === 0 && !searching && (
-                <p className="text-sm text-muted-foreground">
-                  No matches found.
-                </p>
-              )}
-
-              <div className="space-y-3">
-                {searchResults.map((appt) => (
-                  <div
-                    key={appt.id}
-                    className="border rounded-lg p-3 text-sm bg-card hover:bg-accent cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">{appt.name}</span>
-
-                      <Badge variant="secondary">
-                        {new Date(appt.start_time).toLocaleString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          month: "short",
-                          day: "numeric",
-                          timeZone: "UTC",
-                        })}
-                      </Badge>
-                    </div>
-
-                    <p className="text-muted-foreground">{appt.email}</p>
-                    <p className="text-muted-foreground">{appt.reason}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
+          {searchResults.length === 0 && !searching && (
+            <p className="text-sm text-muted-foreground">No matches found.</p>
           )}
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-medium">{weekLabel}</h2>
 
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={previousWeek}>
-                Previous
-              </Button>
-              <Button variant="outline" onClick={nextWeek}>
-                Next
-              </Button>
-            </div>
+          <div className="space-y-3">
+            {searchResults.map((appt) => (
+              <div
+                key={appt.id}
+                className="border rounded-lg p-3 text-sm bg-card hover:bg-accent cursor-pointer"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{appt.name}</span>
+
+                  <Badge variant="secondary">
+                    {new Date(appt.start_time).toLocaleString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      month: "short",
+                      day: "numeric",
+                      timeZone: "UTC",
+                    })}
+                  </Badge>
+                </div>
+
+                <p className="text-muted-foreground">{appt.email}</p>
+                <p className="text-muted-foreground">{appt.reason}</p>
+              </div>
+            ))}
           </div>
-          <CalendarWeek
-            available_slots={availableSlots.available_slots}
-            booked_slots={availableSlots.booked_slots}
-            onSelect={(slot) => setSelectedSlot(slot.datetime_slot)}
-            getAppointments={fetchAvailableSlots}
-            refreshing={fetchingSlots}
-          />
-
-          <Dialog
-            open={!!selectedSlot}
-            onOpenChange={() => setSelectedSlot(null)}
-          >
-            <DialogContent>
-              <CreateAppointmentForm
-                selectedSlot={selectedSlot}
-                onSuccess={() => fetchAvailableSlots()}
-              />
-            </DialogContent>
-          </Dialog>
-          <AppointmentsList />
-          <BookingForm />
-        </div>
+        </Card>
       )}
-    </>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-medium">{weekLabel}</h2>
+
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={previousWeek}>
+            Previous
+          </Button>
+          <Button variant="outline" onClick={nextWeek}>
+            Next
+          </Button>
+        </div>
+      </div>
+      <CalendarWeek
+        available_slots={availableSlots.available_slots}
+        booked_slots={availableSlots.booked_slots}
+        onSelect={(slot) => setSelectedSlot(slot.datetime_slot)}
+        getAppointments={fetchAvailableSlots}
+        refreshing={fetchingSlots}
+      />
+
+      <Dialog open={!!selectedSlot} onOpenChange={() => setSelectedSlot(null)}>
+        <DialogContent>
+          <CreateAppointmentForm
+            selectedSlot={selectedSlot}
+            onSuccess={() => fetchAvailableSlots()}
+          />
+        </DialogContent>
+      </Dialog>
+      <AppointmentsList />
+      <BookingForm />
+    </div>
   );
 }
 
