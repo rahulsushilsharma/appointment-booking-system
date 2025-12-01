@@ -72,7 +72,8 @@ export function CreateAppointmentForm({
 
       if (!res.ok) {
         const e = await res.json();
-        const message = e.detail?.[0]?.msg || "Something went wrong";
+        const message =
+          e.detail?.[0]?.msg || e.detail || "Something went wrong";
         alert(message);
 
         return;
