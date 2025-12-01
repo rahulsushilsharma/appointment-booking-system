@@ -4,10 +4,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { API_URL } from "@/lib/conts";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 export function ServerWarmupDialog({ onReady }: { onReady: () => void }) {
   const [open, setOpen] = useState(true);
