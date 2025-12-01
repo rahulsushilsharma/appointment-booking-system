@@ -16,11 +16,17 @@ interface ListAppointmentsProps {
   open: boolean;
   onClose: () => void;
   token: string;
+  getAppointments: () => void;
 }
 
 // Display all bookings with date, time, name,
 // reason. Include cancel functionality. Sort chronologically
-function ListAppointments({ open, onClose, token }: ListAppointmentsProps) {
+function ListAppointments({
+  open,
+  onClose,
+  token,
+  getAppointments,
+}: ListAppointmentsProps) {
   const [appointments, setAppointments] = useState<BookedSlot[]>([]);
   const [loading, setLoading] = useState(false);
   const [cancled, setCancled] = useState(false);
@@ -70,9 +76,10 @@ function ListAppointments({ open, onClose, token }: ListAppointmentsProps) {
           {!loading && (
             <div className="space-y-4">
               <ScrollArea className="h-96 w-full space-y-4">
-                {appointments.filter(
-                  (appointment) => appointment.cancelled === cancled
-                ).length === 0 && (
+                {appointments
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .filter((appointment) => appointment.cancelled === cancled)
+                  .length === 0 && (
                   <div className="m-auto text-center">
                     No appointments found.
                   </div>
@@ -139,6 +146,7 @@ function ListAppointments({ open, onClose, token }: ListAppointmentsProps) {
             setShowCancelDialog(false);
             setCancelBooking(null);
             fetchAppointments();
+            getAppointments();
           }}
           token={token}
         />
